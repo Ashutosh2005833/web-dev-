@@ -728,21 +728,72 @@ function drawP(){
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'})}));
 
 // ── FORM ──
+const BACKEND_URL = 'https://web-dev-production.up.railway.app'; // UPDATE THIS with your Railway URL
+
 function openWA(){
   const n=document.getElementById('nm').value||'...';
   const p=document.getElementById('ph').value||'...';
   const t=document.getElementById('tp').value||'website';
   window.open('https://wa.me/919999999999?text='+encodeURIComponent(`Namaste! Mera naam ${n} hai.\nPhone: ${p}\nMujhe ${t} banwani hai.\nBaat kar sakte hain?`),'_blank');
 }
-function submit(){
+
+async function submit(){
   const n=document.getElementById('nm').value.trim();
   const p=document.getElementById('ph').value.trim();
+  const em=document.getElementById('em').value.trim();
   const t=document.getElementById('tp').value;
+  const bg=document.getElementById('bg').value.trim();
+  const mg=document.getElementById('mg').value.trim();
+  
   if(!n||!p||!t){alert('Naam, Phone aur Website Type zaroor bharein.');return}
+  
   const btn=document.querySelector('.sub-btn');
-  document.getElementById('ok').style.display='block';
-  btn.disabled=true;btn.innerHTML='<span>✅ Bhej Diya Gaya!</span>';
-  btn.style.background='linear-gradient(135deg,var(--g),var(--c))';
+  const okMsg=document.getElementById('ok');
+  
+  btn.disabled=true;
+  btn.innerHTML='<span>⏳ Submitting...</span>';
+  
+  try{
+    const response=await fetch(BACKEND_URL+'/api/submit-form',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name:n,
+        phone:p,
+        email:em,
+        websiteType:t,
+        budget:bg,
+        message:mg
+      })
+    });
+    
+    const data=await response.json();
+    
+    if(data.success){
+      okMsg.style.display='block';
+      okMsg.innerHTML='✅ Shukriya! Message mil gaya. Hum 24 ghante ke andar sampark karenge!';
+      setTimeout(()=>{
+        document.getElementById('nm').value='';
+        document.getElementById('ph').value='';
+        document.getElementById('em').value='';
+        document.getElementById('tp').value='';
+        document.getElementById('bg').value='';
+        document.getElementById('mg').value='';
+        btn.disabled=false;
+        btn.innerHTML='<span>🚀 Submit Karein — Bilkul Free</span>';
+        okMsg.style.display='none';
+      },3000);
+    }else{
+      alert('Error: '+data.message);
+      btn.disabled=false;
+      btn.innerHTML='<span>🚀 Submit Karein — Bilkul Free</span>';
+    }
+  }catch(err){
+    console.error('Error:',err);
+    alert('Network error. Make sure backend is running on Railway.');
+    btn.disabled=false;
+    btn.innerHTML='<span>🚀 Submit Karein — Bilkul Free</span>';
+  }
 }
 </script>
 </body>
