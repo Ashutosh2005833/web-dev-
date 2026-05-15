@@ -1,0 +1,11 @@
+node_modules/
+form_submissions.db
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.idea/
+.vscode/
+*.swp
+*.swo
+~*
